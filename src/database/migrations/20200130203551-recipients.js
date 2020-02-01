@@ -13,7 +13,6 @@ module.exports = {
       },
       street: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       number: {
         type: Sequelize.STRING,
@@ -25,11 +24,9 @@ module.exports = {
       },
       state: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       city: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       zip: {
         type: Sequelize.STRING,

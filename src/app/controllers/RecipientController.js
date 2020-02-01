@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import zipCode from 'cep-promise';
 
 import Recipient from '../models/Recipient';
 
@@ -16,27 +17,36 @@ class RecipientController {
         'zip',
       ],
     });
-
     return res.json({ recipients });
   }
 
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      street: Yup.string().required(),
       number: Yup.string().required(),
       complement: Yup.string().required(),
-      state: Yup.string().required(),
-      city: Yup.string().required(),
-      zip: Yup.string().required(),
+      zip_code: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails!' });
     }
+    try {
+      const data = await zipCode(req.body.zip_code);
+      const { zip = data.cep } = data;
+      const { name, number, complement } = req.body;
 
-    const recipient = await Recipient.create(req.body);
-    return res.json({ recipient });
+      const recipient = await Recipient.create({
+        name,
+        number,
+        complement,
+        zip,
+        ...data,
+      });
+      return res.json({ recipient });
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
   }
 
   async update(req, res) {
