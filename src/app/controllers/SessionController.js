@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import 'dotenv/config';
 import * as Yup from 'yup';
 
 import User from '../models/User';
+import authConfig from '../../config/auth';
 
 class SessionController {
   async store(req, res) {
@@ -36,8 +36,8 @@ class SessionController {
         name,
         email,
       },
-      token: jwt.sign({ id }, process.env.JWT_KEY, {
-        expiresIn: process.env.JWT_EXPIRES,
+      token: jwt.sign({ id }, authConfig.secret, {
+        expiresIn: authConfig.expire,
       }),
     });
   }
