@@ -73,6 +73,13 @@ class DelivermanController {
   }
 
   async delete(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number(),
+    });
+
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'Validation fails!' });
+    }
     const deliverman = await Deliverman.findOne({
       where: { id: req.params.id },
     });

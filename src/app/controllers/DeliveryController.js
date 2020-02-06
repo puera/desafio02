@@ -63,7 +63,15 @@ class DeliveryController {
         {
           model: Recipient,
           as: 'recipient',
-          attributes: ['name', 'state'],
+          attributes: [
+            'name',
+            'street',
+            'number',
+            'complement',
+            'state',
+            'city',
+            'zip',
+          ],
         },
       ],
     });
@@ -72,6 +80,86 @@ class DeliveryController {
     });
 
     return res.json({ delivery });
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      product: Yup.string(),
+      recipient_id: Yup.number(),
+      deliveryman_id: Yup.number(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails!' });
+    }
+    const { id } = req.params;
+    const { recipient_id, deliveryman_id } = req.body;
+
+    const delivery = await Delivery.findByPk(id, {
+      attributes: ['id', 'product'],
+      include: [
+        {
+          model: Deliveryman,
+          as: 'deliveryman',
+          attributes: ['name', 'email'],
+        },
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'name',
+            'street',
+            'number',
+            'complement',
+            'state',
+            'city',
+            'zip',
+          ],
+        },
+      ],
+    });
+
+    if (!delivery) {
+      return res.status(400).json({ message: 'Delivery not found!' });
+    }
+
+    if (recipient_id) {
+      const recipient = await Recipient.findByPk(recipient_id);
+
+      if (!recipient) {
+        return res.status(400).json({ message: 'Recipient not found!' });
+      }
+    }
+    if (deliveryman_id) {
+      const deliveryman = await Deliveryman.findByPk(deliveryman_id);
+
+      if (!deliveryman) {
+        return res.status(400).json({ message: 'Deliveryman not found!' });
+      }
+    }
+
+    await delivery.update(req.body);
+
+    return res.json({ delivery });
+  }
+
+  async delete(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number(),
+    });
+
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'Validation fails!' });
+    }
+    const { id } = req.params;
+
+    const delivery = await Delivery.findByPk(id);
+
+    if (!delivery) {
+      return res.status(400).json({ message: 'Delivery not found!' });
+    }
+    await delivery.destroy();
+    return res.json({ message: 'Delivery deleted!' });
   }
 }
 
