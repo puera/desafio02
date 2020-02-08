@@ -9,6 +9,7 @@ import FileController from './app/controllers/FileController';
 import DelivermanController from './app/controllers/DelivermanController';
 import DeliveryController from './app/controllers/DeliveryController';
 import WithDrawController from './app/controllers/WithDrawController';
+import OrderController from './app/controllers/OrderController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -43,5 +44,13 @@ routes.put(
   '/orders/deliveryman/:idDman/withdraw/:idOrder',
   WithDrawController.update
 );
+
+routes.put(
+  '/orders/deliveryman/:idDman/delivered/:idOrder',
+  upload.single('file'),
+  OrderController.update
+);
+
+routes.get('/deliveryman/:id/list', OrderController.index);
 
 export default routes;
