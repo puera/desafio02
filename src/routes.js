@@ -11,6 +11,7 @@ import DeliveryController from './app/controllers/DeliveryController';
 import WithDrawController from './app/controllers/WithDrawController';
 import OrderController from './app/controllers/OrderController';
 import DeliveriesController from './app/controllers/DeliveriesController';
+import DeliveryProblemController from './app/controllers/DeliveryProblemController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -55,5 +56,10 @@ routes.put(
 routes.get('/deliveryman/:id/list', OrderController.index);
 
 routes.get('/deliveryman/:id/deliveries', DeliveriesController.index);
+
+routes.get('/delivery/problems', DeliveryProblemController.index);
+routes.get('/delivery/:id/problems', DeliveryProblemController.show);
+routes.post('/delivery/:id/problems', DeliveryProblemController.store);
+routes.delete('/problem/:id/cancel-delivery', DeliveryProblemController.delete);
 
 export default routes;
