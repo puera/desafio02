@@ -10,6 +10,7 @@ import DelivermanController from './app/controllers/DelivermanController';
 import DeliveryController from './app/controllers/DeliveryController';
 import WithDrawController from './app/controllers/WithDrawController';
 import OrderController from './app/controllers/OrderController';
+import DeliveriesController from './app/controllers/DeliveriesController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -52,5 +53,7 @@ routes.put(
 );
 
 routes.get('/deliveryman/:id/list', OrderController.index);
+
+routes.get('/deliveryman/:id/deliveries', DeliveriesController.index);
 
 export default routes;
