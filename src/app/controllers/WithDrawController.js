@@ -58,7 +58,7 @@ class WithDrawController {
     );
     const withdrawHour = getHours(dateWitdraw);
 
-    if (withdrawHour < 8 || withdrawHour >= 20) {
+    if (!(withdrawHour >= 8 && withdrawHour < 18)) {
       return res.status(400).json({
         error: 'The order pick-up date is between 8:00 am to 6:00 pm',
       });
