@@ -20,7 +20,15 @@ class DeliveryController {
             [Op.iLike]: `%${q}%`,
           },
         },
-        attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+        order: [['id', 'ASC']],
+        attributes: [
+          'id',
+          'product',
+          'canceled_at',
+          'start_date',
+          'end_date',
+          'status',
+        ],
         include: [
           {
             model: Recipient,
@@ -50,7 +58,15 @@ class DeliveryController {
       return res.json(deliver);
     }
     const deliveries = await Delivery.findAll({
-      attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+      order: [['id', 'ASC']],
+      attributes: [
+        'id',
+        'product',
+        'canceled_at',
+        'start_date',
+        'end_date',
+        'status',
+      ],
       include: [
         {
           model: Recipient,
