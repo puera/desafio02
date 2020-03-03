@@ -47,6 +47,13 @@ class DeliveryController {
             model: Deliveryman,
             as: 'deliveryman',
             attributes: ['name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['path', 'url'],
+              },
+            ],
           },
           {
             model: File,
@@ -85,11 +92,13 @@ class DeliveryController {
           model: Deliveryman,
           as: 'deliveryman',
           attributes: ['name', 'email'],
-        },
-        {
-          model: File,
-          as: 'signature',
-          attributes: ['name', 'path', 'url'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['path', 'url'],
+            },
+          ],
         },
       ],
     });
