@@ -31,6 +31,33 @@ class DelivermanController {
     return res.json(delivermans);
   }
 
+  async show(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number()
+        .required()
+        .positive()
+        .integer(),
+    });
+
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const { id } = req.params;
+    const deliveryman = await Deliverman.findByPk(id, {
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+      attributes: ['id', 'name', 'email'],
+    });
+
+    return res.json(deliveryman);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),

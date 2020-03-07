@@ -40,7 +40,29 @@ class RecipientController {
         'zip',
       ],
     });
-    return res.json({ recipients });
+    return res.json(recipients);
+  }
+
+  async show(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number()
+        .required()
+        .positive()
+        .integer(),
+    });
+
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const { id } = req.params;
+    const recipient = await Recipient.findByPk(id);
+
+    if (!recipient) {
+      return res.status(401).json({ error: 'Recipient does not exist' });
+    }
+
+    return res.json(recipient);
   }
 
   async store(req, res) {

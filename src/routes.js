@@ -27,17 +27,21 @@ routes.put('/users', UserController.update);
 
 routes.post('/recipients', RecipientController.store);
 routes.get('/recipients', RecipientController.index);
+routes.get('/recipients/:id', RecipientController.index);
 routes.put('/recipients/:id', RecipientController.update);
 routes.delete('/recipients/:id', RecipientController.delete);
 
 routes.post('/files', upload.single('file'), FileController.store);
 
 routes.get('/delivermans', DelivermanController.index);
+routes.get('/delivermans/:id', DelivermanController.show);
 routes.post('/delivermans', DelivermanController.store);
 routes.put('/delivermans/:id', DelivermanController.update);
 routes.delete('/delivermans/:id', DelivermanController.delete);
 
 routes.get('/deliveries', DeliveryController.index);
+routes.get('/deliveries/:id', DeliveryController.show);
+
 routes.post('/deliveries', DeliveryController.store);
 routes.put('/deliveries/:id', DeliveryController.update);
 routes.delete('/deliveries/:id', DeliveryController.delete);
