@@ -14,6 +14,7 @@ class RecipientController {
             [Op.iLike]: `%${q}%`,
           },
         },
+        order: [['id', 'ASC']],
         attributes: [
           'id',
           'name',
@@ -38,6 +39,7 @@ class RecipientController {
         'city',
         'zip',
       ],
+      order: [['id', 'ASC']],
     });
     return res.json(recipients);
   }
