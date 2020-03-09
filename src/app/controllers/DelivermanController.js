@@ -14,6 +14,7 @@ class DelivermanController {
             [Op.iLike]: `%${q}%`,
           },
         },
+        order: [['id', 'ASC']],
         attributes: ['id', 'name', 'email'],
         include: [
           { model: File, as: 'avatar', attributes: ['name', 'path', 'url'] },
@@ -23,6 +24,7 @@ class DelivermanController {
     }
     const delivermans = await Deliverman.findAll({
       attributes: ['id', 'name', 'email'],
+      order: [['id', 'ASC']],
       include: [
         { model: File, as: 'avatar', attributes: ['name', 'path', 'url'] },
       ],
