@@ -7,9 +7,9 @@ import Recipient from '../models/Recipient';
 class DeliveriesController {
   async index(req, res) {
     const { id } = req.params;
-    const { page = 1 } = req.query;
+    const { page = 1, limit = 5 } = req.query;
 
-    const deliveries = await Delivery.findAll({
+    const delivery = await Delivery.findAll({
       where: {
         deliveryman_id: id,
         end_date: {
@@ -18,8 +18,8 @@ class DeliveriesController {
       },
       attributes: ['id', 'product', 'start_date', 'end_date'],
       order: [['id', 'ASC']],
-      limit: 20,
-      offset: (page - 1) * 20,
+      limit,
+      offset: (page - 1) * limit,
       include: [
         {
           model: File,
@@ -41,7 +41,7 @@ class DeliveriesController {
         },
       ],
     });
-    return res.json(deliveries);
+    return res.json(delivery);
   }
 }
 

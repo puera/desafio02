@@ -8,8 +8,15 @@ import Recipient from '../models/Recipient';
 
 class OrderController {
   async index(req, res) {
+    const schema = Yup.object().shape({
+      page: Yup.number(),
+    });
+
+    if (!(await schema.isValid(req.query))) {
+      return res.status(400).json({ error: 'Query Validation fails!' });
+    }
     const { id } = req.params;
-    const { page = 1 } = req.query;
+    const { page = 1, limit = 5 } = req.query;
 
     const deliveries = await Delivery.findAll({
       where: {
@@ -17,8 +24,8 @@ class OrderController {
         end_date: null,
         canceled_at: null,
       },
-      limit: 20,
-      offset: (page - 1) * 20,
+      limit,
+      offset: (page - 1) * limit,
       order: [['id', 'ASC']],
       attributes: ['id', 'product'],
       include: [

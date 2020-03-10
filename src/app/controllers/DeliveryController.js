@@ -11,60 +11,27 @@ import Queue from '../../lib/Queue';
 
 class DeliveryController {
   async index(req, res) {
-    const { q } = req.query;
+    const schema = Yup.object().shape({
+      page: Yup.number(),
+    });
 
-    if (q) {
-      const deliver = await Delivery.findAll({
-        where: {
-          product: {
-            [Op.iLike]: `%${q}%`,
-          },
-        },
-        order: [['id', 'ASC']],
-        attributes: [
-          'id',
-          'product',
-          'canceled_at',
-          'start_date',
-          'end_date',
-          'status',
-        ],
-        include: [
-          {
-            model: Recipient,
-            as: 'recipient',
-            attributes: [
-              'name',
-              'street',
-              'number',
-              'complement',
-              'state',
-              'city',
-              'zip',
-            ],
-          },
-          {
-            model: Deliveryman,
-            as: 'deliveryman',
-            attributes: ['name', 'email'],
-            include: [
-              {
-                model: File,
-                as: 'avatar',
-                attributes: ['path', 'url'],
-              },
-            ],
-          },
-          {
-            model: File,
-            as: 'signature',
-            attributes: ['name', 'path', 'url'],
-          },
-        ],
-      });
-      return res.json(deliver);
+    if (!(await schema.isValid(req.query))) {
+      return res.status(400).json({ error: 'Query Validation fails!' });
     }
-    const deliveries = await Delivery.findAll({
+    const { page = 1, limit = 5, q } = req.query;
+    let query = {};
+    if (q) {
+      query = {
+        product: {
+          [Op.iLike]: `%${q}%`,
+        },
+      };
+    }
+
+    const { count, rows } = await Delivery.findAndCountAll({
+      where: query,
+      limit,
+      offset: (page - 1) * limit,
       order: [['id', 'ASC']],
       attributes: [
         'id',
@@ -107,8 +74,7 @@ class DeliveryController {
         },
       ],
     });
-
-    return res.json(deliveries);
+    return res.json({ count, deliveries: rows });
   }
 
   async show(req, res) {
@@ -201,7 +167,7 @@ class DeliveryController {
       deliveryPick,
     });
 
-    return res.json({ delivery });
+    return res.json(delivery);
   }
 
   async update(req, res) {
@@ -262,7 +228,7 @@ class DeliveryController {
 
     await delivery.update(req.body);
 
-    return res.json({ delivery });
+    return res.json(delivery);
   }
 
   async delete(req, res) {

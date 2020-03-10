@@ -5,32 +5,34 @@ import File from '../models/File';
 
 class DelivermanController {
   async index(req, res) {
-    const { q } = req.query;
+    const schema = Yup.object().shape({
+      page: Yup.number(),
+    });
 
-    if (q) {
-      const deliveryman = await Deliverman.findAll({
-        where: {
-          name: {
-            [Op.iLike]: `%${q}%`,
-          },
-        },
-        order: [['id', 'ASC']],
-        attributes: ['id', 'name', 'email'],
-        include: [
-          { model: File, as: 'avatar', attributes: ['name', 'path', 'url'] },
-        ],
-      });
-      return res.json(deliveryman);
+    if (!(await schema.isValid(req.query))) {
+      return res.status(400).json({ error: 'Query Validation fails!' });
     }
-    const delivermans = await Deliverman.findAll({
-      attributes: ['id', 'name', 'email'],
+    const { page = 1, limit = 5, q } = req.query;
+    let query = {};
+    if (q) {
+      query = {
+        name: {
+          [Op.iLike]: `%${q}%`,
+        },
+      };
+    }
+
+    const { count, rows } = await Deliverman.findAndCountAll({
+      where: query,
+      limit,
+      offset: (page - 1) * limit,
       order: [['id', 'ASC']],
+      attributes: ['id', 'name', 'email'],
       include: [
         { model: File, as: 'avatar', attributes: ['name', 'path', 'url'] },
       ],
     });
-
-    return res.json(delivermans);
+    return res.json({ count, delivermans: rows });
   }
 
   async show(req, res) {

@@ -5,30 +5,28 @@ import Recipient from '../models/Recipient';
 
 class RecipientController {
   async index(req, res) {
-    const { q } = req.query;
+    const schema = Yup.object().shape({
+      page: Yup.number(),
+    });
 
-    if (q) {
-      const recipient = await Recipient.findAll({
-        where: {
-          name: {
-            [Op.iLike]: `%${q}%`,
-          },
-        },
-        order: [['id', 'ASC']],
-        attributes: [
-          'id',
-          'name',
-          'street',
-          'number',
-          'complement',
-          'state',
-          'city',
-          'zip',
-        ],
-      });
-      return res.json(recipient);
+    if (!(await schema.isValid(req.query))) {
+      return res.status(400).json({ error: 'Query Validation fails!' });
     }
-    const recipients = await Recipient.findAll({
+    const { page = 1, limit = 5, q } = req.query;
+    let query = {};
+    if (q) {
+      query = {
+        product: {
+          [Op.iLike]: `%${q}%`,
+        },
+      };
+    }
+
+    const { count, rows } = await Recipient.findAndCountAll({
+      where: query,
+      limit,
+      offset: (page - 1) * limit,
+      order: [['id', 'ASC']],
       attributes: [
         'id',
         'name',
@@ -39,9 +37,8 @@ class RecipientController {
         'city',
         'zip',
       ],
-      order: [['id', 'ASC']],
     });
-    return res.json(recipients);
+    return res.json({ count, recipients: rows });
   }
 
   async show(req, res) {
@@ -106,7 +103,7 @@ class RecipientController {
     }
     await recipientPick.update(req.body);
 
-    return res.json({ recipientPick });
+    return res.json(recipientPick);
   }
 
   async delete(req, res) {

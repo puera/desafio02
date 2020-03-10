@@ -20,51 +20,20 @@ class DeliveryProblemController {
       return res.status(400).json({ error: 'Query Validation fails!' });
     }
 
-    const { page = 1, q } = req.query;
-
+    const { page = 1, limit = 5, q } = req.query;
+    let query = {};
     if (q) {
-      const problems = await DeliveryProblem.findAll({
-        where: {
-          description: {
-            [Op.iLike]: `%${q}%`,
-          },
+      query = {
+        description: {
+          [Op.iLike]: `%${q}%`,
         },
-        limit: 20,
-        offset: (page - 1) * 20,
-        order: [['id', 'ASC']],
-        attributes: ['id', 'description', 'createdAt', 'updatedAt'],
-        include: [
-          {
-            model: Delivery,
-            as: 'delivery',
-            attributes: ['id', 'product', 'canceled_at'],
-            include: [
-              {
-                model: Recipient,
-                as: 'recipient',
-                attributes: ['name'],
-              },
-              {
-                model: DeliveryMan,
-                as: 'deliveryman',
-                attributes: ['name'],
-              },
-            ],
-          },
-        ],
-      });
-
-      if (!problems.length) {
-        return res
-          .status(400)
-          .json({ message: 'No ordering problem to be shown.' });
-      }
-
-      return res.json(problems);
+      };
     }
-    const problems = await DeliveryProblem.findAll({
-      limit: 20,
-      offset: (page - 1) * 20,
+
+    const { count, rows } = await DeliveryProblem.findAndCountAll({
+      where: query,
+      limit,
+      offset: (page - 1) * limit,
       order: [['id', 'ASC']],
       attributes: ['id', 'description', 'createdAt', 'updatedAt'],
       include: [
@@ -88,13 +57,13 @@ class DeliveryProblemController {
       ],
     });
 
-    if (!problems.length) {
+    if (!rows.length) {
       return res
         .status(400)
         .json({ message: 'No ordering problem to be shown.' });
     }
 
-    return res.json(problems);
+    return res.json({ count, problems: rows });
   }
 
   async show(req, res) {
