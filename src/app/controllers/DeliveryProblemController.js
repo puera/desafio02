@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { parseISO, format } from 'date-fns';
+import { Op } from 'sequelize';
 
 import DeliveryProblem from '../models/DeliveryProblem';
 import Delivery from '../models/Delivery';
@@ -19,16 +20,70 @@ class DeliveryProblemController {
       return res.status(400).json({ error: 'Query Validation fails!' });
     }
 
-    const { page = 1 } = req.query;
+    const { page = 1, q } = req.query;
+
+    if (q) {
+      const problems = await DeliveryProblem.findAll({
+        where: {
+          description: {
+            [Op.iLike]: `%${q}%`,
+          },
+        },
+        limit: 20,
+        offset: (page - 1) * 20,
+        order: [['id', 'ASC']],
+        attributes: ['id', 'description', 'createdAt', 'updatedAt'],
+        include: [
+          {
+            model: Delivery,
+            as: 'delivery',
+            attributes: ['id', 'product', 'canceled_at'],
+            include: [
+              {
+                model: Recipient,
+                as: 'recipient',
+                attributes: ['name'],
+              },
+              {
+                model: DeliveryMan,
+                as: 'deliveryman',
+                attributes: ['name'],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!problems.length) {
+        return res
+          .status(400)
+          .json({ message: 'No ordering problem to be shown.' });
+      }
+
+      return res.json(problems);
+    }
     const problems = await DeliveryProblem.findAll({
       limit: 20,
       offset: (page - 1) * 20,
       order: [['id', 'ASC']],
+      attributes: ['id', 'description', 'createdAt', 'updatedAt'],
       include: [
         {
           model: Delivery,
           as: 'delivery',
           attributes: ['id', 'product', 'canceled_at'],
+          include: [
+            {
+              model: Recipient,
+              as: 'recipient',
+              attributes: ['name'],
+            },
+            {
+              model: DeliveryMan,
+              as: 'deliveryman',
+              attributes: ['name'],
+            },
+          ],
         },
       ],
     });
