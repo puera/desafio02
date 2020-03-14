@@ -16,7 +16,7 @@ class RecipientController {
     let query = {};
     if (q) {
       query = {
-        product: {
+        name: {
           [Op.iLike]: `%${q}%`,
         },
       };

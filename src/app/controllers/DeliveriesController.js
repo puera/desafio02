@@ -9,7 +9,7 @@ class DeliveriesController {
     const { id } = req.params;
     const { page = 1, limit = 5 } = req.query;
 
-    const delivery = await Delivery.findAll({
+    const { count, rows } = await Delivery.findAndCountAll({
       where: {
         deliveryman_id: id,
         end_date: {
@@ -41,7 +41,7 @@ class DeliveriesController {
         },
       ],
     });
-    return res.json(delivery);
+    return res.json({ count, deliveries: rows });
   }
 }
 
