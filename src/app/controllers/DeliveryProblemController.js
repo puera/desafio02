@@ -40,7 +40,7 @@ class DeliveryProblemController {
         {
           model: Delivery,
           as: 'delivery',
-          attributes: ['id', 'product', 'canceled_at'],
+          attributes: ['id', 'product', 'canceled_at', 'end_date'],
           include: [
             {
               model: Recipient,
@@ -75,11 +75,14 @@ class DeliveryProblemController {
       return res.status(400).json({ error: 'Params Validation fails!' });
     }
     const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
 
-    const problems = await DeliveryProblem.findAll({
+    const { count, rows } = await DeliveryProblem.findAndCountAll({
       where: {
         delivery_id: id,
       },
+      limit,
+      offset: (page - 1) * limit,
       order: [['id', 'ASC']],
       include: [
         {
@@ -90,13 +93,7 @@ class DeliveryProblemController {
       ],
     });
 
-    if (!problems.length) {
-      return res
-        .status(400)
-        .json({ message: 'No ordering problem to be shown.' });
-    }
-
-    return res.json(problems);
+    return res.json({ count, problems: rows });
   }
 
   async store(req, res) {

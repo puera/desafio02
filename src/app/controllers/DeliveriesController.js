@@ -16,10 +16,17 @@ class DeliveriesController {
           [Op.ne]: null,
         },
       },
-      attributes: ['id', 'product', 'start_date', 'end_date'],
-      order: [['id', 'ASC']],
       limit,
       offset: (page - 1) * limit,
+      attributes: [
+        'id',
+        'product',
+        'start_date',
+        'end_date',
+        'createdAt',
+        'status',
+      ],
+      order: [['id', 'ASC']],
       include: [
         {
           model: File,

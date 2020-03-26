@@ -56,7 +56,7 @@ class DelivermanController {
           attributes: ['id', 'path', 'url'],
         },
       ],
-      attributes: ['id', 'name', 'email'],
+      attributes: ['id', 'name', 'email', 'createdAt'],
     });
 
     return res.json(deliveryman);

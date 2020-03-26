@@ -18,7 +18,7 @@ class OrderController {
     const { id } = req.params;
     const { page = 1, limit = 5 } = req.query;
 
-    const deliveries = await Delivery.findAll({
+    const { count, rows } = await Delivery.findAndCountAll({
       where: {
         deliveryman_id: id,
         end_date: null,
@@ -27,7 +27,14 @@ class OrderController {
       limit,
       offset: (page - 1) * limit,
       order: [['id', 'ASC']],
-      attributes: ['id', 'product'],
+      attributes: [
+        'id',
+        'product',
+        'status',
+        'createdAt',
+        'start_date',
+        'end_date',
+      ],
       include: [
         {
           model: Recipient,
@@ -42,10 +49,15 @@ class OrderController {
             'zip',
           ],
         },
+        {
+          model: Deliverman,
+          as: 'deliveryman',
+          attributes: ['id', 'name'],
+        },
       ],
     });
 
-    return res.json(deliveries);
+    return res.json({ count, deliveries: rows });
   }
 
   async update(req, res) {
